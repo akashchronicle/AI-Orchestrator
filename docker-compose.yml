@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "${PORT}:${PORT}"
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - PORT=${PORT}
+      - DATA_CLEANER_PORT=${DATA_CLEANER_PORT}
+      - DATA_PREPROCESSOR_PORT=${DATA_PREPROCESSOR_PORT}
+      - DATA_NORMALIZER_PORT=${DATA_NORMALIZER_PORT}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - ${DOCKER_NETWORK}
+    depends_on:
+      data-cleaner:
+        condition: service_healthy
+      data-preprocessor:
+        condition: service_healthy
+      data-normalizer:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - ${DOCKER_NETWORK}
+
+  data-cleaner:
+    build: 
+      context: ./containers/data-cleaner
+    container_name: data-cleaner
+    expose:
+      - "${DATA_CLEANER_PORT}"
+    environment:
+      - PORT=${DATA_CLEANER_PORT}
+    networks:
+      - ${DOCKER_NETWORK}
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:${DATA_CLEANER_PORT}/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  data-preprocessor:
+    build:
+      context: ./containers/data-preprocessor
+    container_name: data-preprocessor
+    expose:
+      - "${DATA_PREPROCESSOR_PORT}"
+    environment:
+      - PORT=${DATA_PREPROCESSOR_PORT}
+    networks:
+      - ${DOCKER_NETWORK}
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:${DATA_PREPROCESSOR_PORT}/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  data-normalizer:
+    build:
+      context: ./containers/data-normalizer
+    container_name: data-normalizer
+    expose:
+      - "${DATA_NORMALIZER_PORT}"
+    environment:
+      - PORT=${DATA_NORMALIZER_PORT}
+    networks:
+      - ${DOCKER_NETWORK}
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:${DATA_NORMALIZER_PORT}/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+networks:
+  app-network:
+    driver: bridge 

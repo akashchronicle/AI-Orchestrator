@@ -1,0 +1,12 @@
+{
+  "name": "data-cleaner",
+  "version": "1.0.0",
+  "description": "Data cleaning service",
+  "main": "process.js",
+  "scripts": {
+    "start": "node process.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+} 
