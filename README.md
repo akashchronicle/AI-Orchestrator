@@ -2,7 +2,8 @@ AI Orchestrator with Containers
 
 A containerized financial data analysis system using AI for real-time transaction insights.
 
-![image](https://github.com/user-attachments/assets/4e538cec-5f4c-4aec-81c9-46ceb48b440c)
+![image](https://github.com/user-attachments/assets/0d035f75-f6de-4b14-9dfe-95d18a9fe40e)
+
 ![image](https://github.com/user-attachments/assets/1c54fa36-36d6-455b-b68f-af3fd6e5c75b)
 
 
