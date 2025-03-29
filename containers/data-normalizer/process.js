@@ -3,7 +3,6 @@ const app = express();
 
 app.use(express.json());
 
-// Health check endpoint
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
@@ -15,22 +14,18 @@ function calculatePercentage(part, total) {
 function generateInsights(summary, categories) {
     const insights = [];
     
-    // Overall financial health
     const savingsRate = calculatePercentage(summary.net_balance, summary.total_credits);
     insights.push(`Net savings rate: ${savingsRate}% of total income`);
     
-    // Category analysis
     if (summary.total_debits > 0) {
         const sortedCategories = Object.entries(categories)
             .sort(([,a], [,b]) => b.total - a.total);
         
-        // Highest spending category
         if (sortedCategories.length > 0) {
             const [topCategory, topData] = sortedCategories[0];
             const topPercentage = calculatePercentage(topData.total, summary.total_debits);
             insights.push(`Highest expense category is ${topCategory} at ${topPercentage}% of total expenses`);
             
-            // Category distribution
             sortedCategories.forEach(([category, data]) => {
                 const percentage = calculatePercentage(data.total, summary.total_debits);
                 if (percentage > 10) { // Only show significant categories
@@ -43,7 +38,7 @@ function generateInsights(summary, categories) {
     return insights;
 }
 
-// Data normalization endpoint
+
 app.post('/process', (req, res) => {
     try {
         console.log('Received data:', JSON.stringify(req.body, null, 2));
@@ -54,7 +49,7 @@ app.post('/process', (req, res) => {
             throw new Error('Invalid input: expecting processed transaction data');
         }
 
-        // Calculate summary totals
+        
         const summary = {
             total_credits: processedData.transactions_by_type.credits
                 .reduce((sum, t) => sum + t.amount, 0),
@@ -63,10 +58,9 @@ app.post('/process', (req, res) => {
         };
         summary.net_balance = summary.total_credits - summary.total_debits;
 
-        // Generate insights
+        
         const insights = generateInsights(summary, processedData.categories);
 
-        // Normalize and analyze the data
         const analysis = {
             summary,
             categorized_expenses: processedData.categories,

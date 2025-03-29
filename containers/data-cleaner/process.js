@@ -3,35 +3,34 @@ const app = express();
 
 app.use(express.json());
 
-// Health check endpoint
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
 
-// Data cleaning endpoint
+
 app.post('/process', (req, res) => {
     try {
         const data = req.body.data;
         
-        // Split the data into lines
+        
         const lines = data.split('\n').filter(line => line.trim());
         
-        // Process each line
+        
         const cleanedTransactions = [];
         
         lines.forEach(line => {
-            // Check if line contains transaction data
+           
             if (line.includes('INR')) {
-                // Extract transaction details using regex
+                
                 const match = line.match(/- (.*?): INR ([\d,]+) \((Credit|Debit)\) - (\d{2}\/\d{2}\/\d{4})/);
                 
                 if (match) {
                     const [_, source, amountStr, type, dateStr] = match;
                     
-                    // Clean and parse amount
+                    
                     const amount = parseInt(amountStr.replace(/,/g, ''));
                     
-                    // Parse and format date
+                   
                     const [day, month, year] = dateStr.split('/');
                     const formattedDate = `${year}-${month}-${day}`;
                     

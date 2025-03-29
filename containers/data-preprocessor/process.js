@@ -3,12 +3,10 @@ const app = express();
 
 app.use(express.json());
 
-// Health check endpoint
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
 
-// Transaction categorization rules
 const CATEGORIES = {
     'amazon': 'shopping',
     'swiggy': 'food',
@@ -27,7 +25,6 @@ function categorizeTransaction(source) {
     return 'other';
 }
 
-// Data preprocessing endpoint
 app.post('/process', (req, res) => {
     try {
         console.log('Received data:', JSON.stringify(req.body, null, 2));
@@ -37,7 +34,6 @@ app.post('/process', (req, res) => {
             throw new Error('Invalid input: expecting array of transactions');
         }
 
-        // Process transactions
         const processedData = {
             transactions_by_type: {
                 credits: [],
@@ -51,7 +47,6 @@ app.post('/process', (req, res) => {
             const { source, amount, type, date } = transaction;
             const category = categorizeTransaction(source);
 
-            // Add to transactions by type
             if (type === 'credit') {
                 processedData.transactions_by_type.credits.push({
                     ...transaction,
@@ -64,13 +59,11 @@ app.post('/process', (req, res) => {
                 });
             }
 
-            // Update daily totals
             if (!processedData.daily_totals[date]) {
                 processedData.daily_totals[date] = { credits: 0, debits: 0 };
             }
             processedData.daily_totals[date][type + 's'] += amount;
 
-            // Update category totals
             if (!processedData.categories[category]) {
                 processedData.categories[category] = { total: 0, transactions: [] };
             }
